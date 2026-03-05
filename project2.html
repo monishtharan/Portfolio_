@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NLP Market Sentiment | Alex Rivera</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #020202;
+            color: #00f3ff;
+            font-family: 'JetBrains Mono', monospace;
+            overflow-x: hidden;
+        }
+        #webgl { position: fixed; top: 0; left: 0; width: 100%; height: 80%; z-index: 0; }
+        
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(0, 20, 30, 0.95);
+            border-bottom: 1px solid #00f3ff;
+            padding: 20px 0;
+        }
+        nav .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo { font-size: 1.5rem; font-weight: 700; color: #00f3ff; text-decoration: none; }
+        .back-btn {
+            color: #00f3ff;
+            text-decoration: none;
+            padding: 10px 20px;
+            border: 1px solid #00f3ff;
+            transition: all 0.3s;
+        }
+        .back-btn:hover { background: #00f3ff; color: #020202; }
+        
+        main {
+            position: relative;
+            z-index: 1;
+            padding: 120px 10% 60px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .project-header { margin-bottom: 40px; }
+        .project-tag {
+            display: inline-block;
+            padding: 5px 15px;
+            border: 1px solid #ff00ff;
+            color: #ff00ff;
+            font-size: 0.8rem;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 3rem;
+            text-shadow: 0 0 20px #00f3ff;
+            margin-bottom: 20px;
+        }
+        .project-meta {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+            opacity: 0.7;
+        }
+        .project-meta span { display: flex; align-items: center; gap: 8px; }
+        
+        .project-description {
+            background: rgba(0, 20, 30, 0.85);
+            border: 1px solid #00f3ff;
+            padding: 40px;
+            margin-bottom: 40px;
+        }
+        .project-description h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #ff00ff;
+        }
+        .project-description p {
+            line-height: 1.8;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+        .project-description ul { margin-left: 20px; margin-bottom: 20px; }
+        .project-description li { margin-bottom: 10px; opacity: 0.8; }
+        
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+        .tech-item {
+            padding: 10px 20px;
+            border: 1px solid #00f3ff;
+            font-size: 0.9rem;
+        }
+        
+        .preview-section {
+            background: rgba(0, 20, 30, 0.85);
+            border: 1px solid #00f3ff;
+            padding: 40px;
+            margin-bottom: 40px;
+        }
+        .preview-section h2 { margin-bottom: 20px; color: #ff00ff; }
+        .preview-placeholder {
+            width: 100%;
+            height: 400px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px dashed #00f3ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .preview-placeholder i { font-size: 4rem; opacity: 0.5; }
+        .preview-placeholder p { opacity: 0.5; }
+        
+        .live-btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: #00f3ff;
+            color: #020202;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+.live-btn:hover { box-shadow: 0 0 30px rgba(0, 243, 255, 0.6); }
+        
+        /* View Source Code Button */
+        .source-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 30px;
+            background: transparent;
+            color: #00f3ff;
+            text-decoration: none;
+            border: 1px solid #00f3ff;
+            font-weight: 700;
+            transition: all 0.3s;
+            margin-bottom: 25px;
+        }
+        .source-btn:hover {
+            background: #00f3ff;
+            color: #020202;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .result-card {
+            background: rgba(0, 20, 30, 0.85);
+            border: 1px solid #00f3ff;
+            padding: 30px;
+            text-align: center;
+        }
+        .result-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00f3ff;
+        }
+        .result-label { font-size: 0.8rem; opacity: 0.7; margin-top: 10px; }
+        
+        footer {
+            text-align: center;
+            padding: 30px;
+            border-top: 1px solid rgba(0, 243, 255, 0.3);
+            font-size: 0.8rem;
+            opacity: 0.6;
+        }
+        
+        @media (max-width: 768px) {
+            .results-grid { grid-template-columns: 1fr; }
+            h1 { font-size: 2rem; }
+            main { padding: 100px 5% 40px; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="webgl"></canvas>
+    
+    <nav>
+        <div class="container">
+            <a href="protfolio.html" class="logo"><AR /></a>
+            <a href="protfolio.html" class="back-btn">&larr; Back to Portfolio</a>
+        </div>
+    </nav>
+    
+    <main>
+        <div class="project-header">
+            <span class="project-tag">MACHINE LEARNING</span>
+            <h1>NLP Market Sentiment</h1>
+            <div class="project-meta">
+                <span><i class="fas fa-calendar"></i> Dec 2025</span>
+                <span><i class="fas fa-user"></i> Lead Developer</span>
+                <span><i class="fas fa-code"></i> Python, Transformers, Kafka</span>
+            </div>
+        </div>
+        
+        <div class="tech-stack">
+            <span class="tech-item">Python</span>
+            <span class="tech-item">BERT</span>
+            <span class="tech-item">Apache Kafka</span>
+            <span class="tech-item">TensorFlow</span>
+            <span class="tech-item">Redis</span>
+            <span class="tech-item">Docker</span>
+        </div>
+        
+        <div class="project-description">
+            <h2>// PROJECT OVERVIEW</h2>
+            <p>A real-time sentiment analysis system that processes millions of tweets daily to predict cryptocurrency market movements. The system uses advanced NLP techniques to analyze public sentiment and correlate it with price volatility.</p>
+            
+            <h2>// KEY FEATURES</h2>
+            <ul>
+                <li>Real-time streaming of 1M+ tweets using Kafka message queue</li>
+                <li>Fine-tuned BERT model for sentiment classification (Positive/Negative/Neutral)</li>
+                <li>Live correlation analysis with crypto market data</li>
+                <li>92.3% accuracy in sentiment prediction</li>
+                <li>Interactive dashboard with real-time visualizations</li>
+            </ul>
+            
+            <h2>// METHODOLOGY</h2>
+            <p>The pipeline collects tweets via Twitter API, preprocesses them using NLP techniques, runs them through a fine-tuned BERT model for sentiment classification, and stores results in Redis for real-time access. The correlation engine then analyzes sentiment trends against price movements.</p>
+</div>
+        
+        <a href="https://github.com" target="_blank" class="source-btn">
+            <i class="fab fa-github"></i> View Source Code
+        </a>
+        
+        <div class="preview-section">
+            <h2>// LIVE PREVIEW</h2>
+            <div class="preview-placeholder">
+                <i class="fas fa-chart-line"></i>
+                <p>Sentiment Analysis Dashboard</p>
+                <a href="#" class="live-btn">VIEW LIVE DEMO</a>
+            </div>
+        </div>
+        
+        <div class="project-description">
+            <h2>// RESULTS & IMPACT</h2>
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="result-value">1M+</div>
+                    <div class="result-label">Tweets Processed Daily</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-value">92.3%</div>
+                    <div class="result-label">Accuracy Rate</div>
+                </div>
+                <div class="result-card">
+                    <div class="result-value">50ms</div>
+                    <div class="result-label">Latency</div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <p>© 2026 ALEX RIVERA // DATA SCIENCE PORTFOLIO</p>
+    </footer>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        const canvas = document.querySelector('#webgl');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight * 0.8);
+
+        const count = 5000;
+        const pos1 = new Float32Array(count * 3);
+        const pos2 = new Float32Array(count * 3);
+        const r = 8;
+
+        for (let i = 0; i < count; i++) {
+            const i3 = i * 3;
+            pos1[i3] = (Math.random() - 0.5) * 40;
+            pos1[i3+1] = (Math.random() - 0.5) * 40;
+            pos1[i3+2] = (Math.random() - 0.5) * 40;
+            const phi = Math.acos(-1 + (2 * i) / count);
+            const theta = Math.sqrt(count * Math.PI) * phi;
+            pos2[i3] = r * Math.cos(theta) * Math.sin(phi);
+            pos2[i3+1] = r * Math.sin(theta) * Math.sin(phi);
+            pos2[i3+2] = r * Math.cos(phi);
+        }
+
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(pos1, 3));
+        geometry.setAttribute('targetPos', new THREE.BufferAttribute(pos2, 3));
+
+        const material = new THREE.ShaderMaterial({
+            uniforms: { uProgress: { value: 0 }, uTime: { value: 0 } },
+            vertexShader: `
+                uniform float uProgress; uniform float uTime; attribute vec3 targetPos;
+                void main() {
+                    vec3 morph = mix(position, targetPos, uProgress);
+                    morph.y += sin(uTime + morph.x) * 0.15;
+                    vec4 mvPos = modelViewMatrix * vec4(morph, 1.0);
+                    gl_PointSize = 2.0 * (12.0 / -mvPos.z);
+                    gl_Position = projectionMatrix * mvPos;
+                }
+            `,
+            fragmentShader: `void main() { if(distance(gl_PointCoord, vec2(0.5)) > 0.5) discard; gl_FragColor = vec4(0.0, 0.95, 1.0, 0.25); }`,
+            transparent: true, blending: THREE.AdditiveBlending
+        });
+        
+        const points = new THREE.Points(geometry, material);
+        points.position.y = -5;
+        scene.add(points);
+
+        camera.position.z = 40;
+        
+        function animate(time) {
+            material.uniforms.uTime.value = time * 0.001;
+            points.rotation.y += 0.0005;
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
+</body>
+</html>
